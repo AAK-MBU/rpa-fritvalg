@@ -10,7 +10,7 @@ def process_item(item_data: dict, item_reference: str):
     assert item_data, "Item data is required"
     assert item_reference, "Item reference is required"
 
-    citizen_cpr = item_data.get("1805117229")
+    citizen_cpr = item_data.get("cpr")
 
     meta_data = {
         "cpr": citizen_cpr,
