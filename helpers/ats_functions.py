@@ -8,13 +8,11 @@ import requests
 from automation_server_client import AutomationServer, WorkItem, Workqueue
 from dotenv import load_dotenv
 
-# !!! REMOVE !!! #
-# os.environ["ATS_TOKEN"] = os.getenv("ATS_TOKEN_DEV")
-# os.environ["ATS_URL"] = os.getenv("ATS_URL_DEV")
-# !!! REMOVE !!! #
-
 ATS_TOKEN = os.getenv("ATS_TOKEN")
 ATS_URL = os.getenv("ATS_URL")
+
+ATS_TOKEN_DEV = os.getenv("ATS_TOKEN_DEV")
+ATS_URL_DEV = os.getenv("ATS_URL_DEV")
 
 
 def get_workqueue_items(workqueue: Workqueue, return_data=False):
@@ -74,14 +72,25 @@ def init_logger():
     )
 
 
-def fetch_workqueue(workqueue_name: str):
+def fetch_workqueue(workqueue_name: str, dev: bool = False):
     """
-    Helper function to fetch the next workqueue in the overall process flow
+    Helper function to fetch the desired workqueue based on a provided workqueue_name
     """
 
-    headers = {"Authorization": f"Bearer {ATS_TOKEN}"}
+    if dev:
+        os.environ["ATS_URL"] = ATS_URL_DEV
+        os.environ["ATS_TOKEN"] = ATS_TOKEN_DEV
 
-    full_url = f"{ATS_URL}/workqueues/by_name/tan.udskrivning22.{workqueue_name}"
+    else:
+        os.environ["ATS_URL"] = ATS_URL
+        os.environ["ATS_TOKEN"] = ATS_TOKEN
+
+    token = os.getenv("ATS_TOKEN")
+    url = os.getenv("ATS_URL")
+
+    headers = {"Authorization": f"Bearer {token}"}
+
+    full_url = f"{url}/workqueues/by_name/{workqueue_name}"
 
     response_json = requests.get(full_url, headers=headers, timeout=60).json()
     workqueue_id = response_json.get("id")
