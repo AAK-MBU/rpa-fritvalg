@@ -15,34 +15,24 @@ from processes.application_handler import close, reset, startup
 from processes.error_handling import ErrorContext, handle_error
 from processes.finalize_process import finalize_process
 from processes.process_item import process_item
-from processes.queue_handler import concurrent_add, retrieve_items_for_queue
 
 logger = logging.getLogger(__name__)
 
 
-async def populate_queue(workqueue: Workqueue):
-    """Populate the workqueue with items to be processed."""
-
-    logger.info("Populating workqueue...")
-
-    items_to_queue = retrieve_items_for_queue()
-
-    queue_references = {str(r) for r in ats_functions.get_workqueue_items(workqueue)}
-
-    new_items: list[dict] = []
-    for item in items_to_queue:
-        reference = str(item.get("reference") or "")
-        if reference and reference in queue_references:
-            logger.info(
-                "Reference: %s already in queue. Item: %s not added",
-                reference,
-                item,
-            )
-        else:
-            new_items.append(item)
-
-    await concurrent_add(workqueue, new_items)
-    logger.info("Finished populating workqueue.")
+# ╔══════════════════════════════════════════════╗
+# ║ 🔥 REMOVE BEFORE DEPLOYMENT (TEMP OVERRIDES) 🔥 ║
+# ╚══════════════════════════════════════════════╝
+# import requests
+# import urllib3
+# urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+# _old_request = requests.Session.request
+# def unsafe_request(self, *args, **kwargs):
+#     kwargs['verify'] = False
+#     return _old_request(self, *args, **kwargs)
+# requests.Session.request = unsafe_request
+# ╔══════════════════════════════════════════════╗
+# ║ 🔥 REMOVE BEFORE DEPLOYMENT (TEMP OVERRIDES) 🔥 ║
+# ╚══════════════════════════════════════════════╝
 
 
 async def process_workqueue(workqueue: Workqueue):
@@ -139,9 +129,6 @@ if __name__ == "__main__":
 
     prod_workqueue = ats.workqueue()
     process = ats.process
-
-    if "--queue" in sys.argv:
-        asyncio.run(populate_queue(prod_workqueue))
 
     if "--process" in sys.argv:
         asyncio.run(process_workqueue(prod_workqueue))

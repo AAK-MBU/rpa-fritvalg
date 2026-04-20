@@ -4,8 +4,15 @@ import logging
 import os
 
 import requests
-from automation_server_client import WorkItem, Workqueue
+
+from automation_server_client import AutomationServer, WorkItem, Workqueue
 from dotenv import load_dotenv
+
+ATS_TOKEN = os.getenv("ATS_TOKEN")
+ATS_URL = os.getenv("ATS_URL")
+
+ATS_TOKEN_DEV = os.getenv("ATS_TOKEN_DEV")
+ATS_URL_DEV = os.getenv("ATS_URL_DEV")
 
 
 def get_workqueue_items(workqueue: Workqueue, return_data=False):
@@ -63,3 +70,49 @@ def init_logger():
         format="%(asctime)s [%(levelname)s] %(module)s.%(funcName)s:%(lineno)d — %(message)s",
         datefmt="%H:%M:%S",
     )
+
+
+def fetch_workqueue(workqueue_name: str, dev: bool = False):
+    """
+    Helper function to fetch the desired workqueue based on a provided workqueue_name
+    """
+
+    if dev:
+        os.environ["ATS_URL"] = ATS_URL_DEV
+        os.environ["ATS_TOKEN"] = ATS_TOKEN_DEV
+
+    else:
+        os.environ["ATS_URL"] = ATS_URL
+        os.environ["ATS_TOKEN"] = ATS_TOKEN
+
+    token = os.getenv("ATS_TOKEN")
+    url = os.getenv("ATS_URL")
+
+    headers = {"Authorization": f"Bearer {token}"}
+
+    full_url = f"{url}/workqueues/by_name/{workqueue_name}"
+
+    response_json = requests.get(full_url, headers=headers, timeout=60).json()
+    workqueue_id = response_json.get("id")
+
+    os.environ["ATS_WORKQUEUE_OVERRIDE"] = str(workqueue_id)  # override it
+    ats = AutomationServer.from_environment()
+    workqueue = ats.workqueue()
+
+    return workqueue
+
+
+def enqueue_items(workqueue: Workqueue, items: list[dict]):
+    """
+    Enqueues each (reference, data) pair to the next workqueue, avoiding duplicates.
+
+    Used for standard flows where further processing is required in later steps.
+    """
+
+    existing_refs = {str(r) for r in get_workqueue_items(workqueue)}
+
+    for it in items:
+        reference = it.get("cpr")
+
+        if reference and reference not in existing_refs:
+            workqueue.add_item({"item": {"reference": reference, "data": it}}, reference)
