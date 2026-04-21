@@ -112,7 +112,7 @@ def enqueue_items(workqueue: Workqueue, items: list[dict]):
     existing_refs = {str(r) for r in get_workqueue_items(workqueue)}
 
     for it in items:
-        reference = it.get("cpr")
+        reference = it.get("form_id")
 
         if reference and reference not in existing_refs:
             workqueue.add_item({"item": {"reference": reference, "data": it}}, reference)
