@@ -61,7 +61,7 @@ def handle_process_dashboard(status: str, item_reference: str, process_step_name
         status_update_data["failure"] = failure
 
     else:
-        step_run_update_data = process_step_run.build_step_run_update(status=status)
+        step_run_update_data = process_step_run.build_step_run_update(status=status, failure="")
 
     logger.info("before update_dashboard_step_run_by_id() ...")
 
