@@ -11,7 +11,7 @@ from mbu_rpa_core.exceptions import BusinessError, ProcessError
 from mbu_rpa_core.process_states import CompletedState
 
 from helpers import ats_functions, config
-from processes.application_handler import close, reset, startup
+from processes.application_handler import close, reset
 from processes.error_handling import ErrorContext, handle_error
 from processes.finalize_process import finalize_process
 from processes.process_item import process_item
@@ -39,8 +39,6 @@ async def process_workqueue(workqueue: Workqueue):
     """Process items from the workqueue."""
 
     logger.info("Processing workqueue...")
-
-    startup()
 
     error_count = 0
 

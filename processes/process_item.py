@@ -8,7 +8,7 @@ from mbu_solteqtand_shared_components.database.db_handler import SolteqTandDatab
 from mbu_rpa_core.exceptions import BusinessError
 
 from helpers import ats_functions, helper_functions, solteq_helper
-from processes.application_handler import get_app
+from processes.application_handler import get_app, startup
 
 logger = logging.getLogger(__name__)
 
@@ -74,6 +74,8 @@ def process_item(item_data: dict, item_reference: str):
 
             if not digital_post_status:
                 raise BusinessError(message="Borger ikke tilmeldt digital post")
+
+            startup()
 
             solteq_app = get_app()
 
