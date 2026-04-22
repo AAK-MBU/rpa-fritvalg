@@ -14,6 +14,8 @@ ATS_URL = os.getenv("ATS_URL")
 ATS_TOKEN_DEV = os.getenv("ATS_TOKEN_DEV")
 ATS_URL_DEV = os.getenv("ATS_URL_DEV")
 
+logger = logging.getLogger(__name__)
+
 
 def get_workqueue_items(workqueue: Workqueue, return_data=False):
     """
@@ -111,8 +113,12 @@ def enqueue_items(workqueue: Workqueue, items: list[dict]):
 
     existing_refs = {str(r) for r in get_workqueue_items(workqueue)}
 
+    logger.info("after existing refs")
+
     for it in items:
         reference = it.get("form_id")
+
+        logger.info(f"reference: {reference}")
 
         if reference and reference not in existing_refs:
             workqueue.add_item({"item": {"reference": reference, "data": it}}, reference)
