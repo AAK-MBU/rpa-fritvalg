@@ -66,5 +66,7 @@ def handle_process_dashboard(status: str, item_reference: str, process_step_name
     logger.info("before update_dashboard_step_run_by_id() ...")
 
     updated_step_run_data, status_code = process_step_run.update_dashboard_step_run_by_id(client=CLIENT, step_run_id=step_run_id, update_data=step_run_update_data)
+    logger.info("UPDATED DATA: %s", updated_step_run_data)
+    logger.info("TYPES: %s", {k: type(v) for k, v in updated_step_run_data.items()})
 
     return updated_step_run_data, status_code
