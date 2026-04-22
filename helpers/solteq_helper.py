@@ -39,8 +39,6 @@ def check_digital_post_status(solteq_tand_db_object: SolteqTandDatabase, cpr: st
         filters=filters,
     )
 
-    logger.info(f"\n\nprinting sql:\n\n{final_query}\n\n")
-
     rows = solteq_tand_db_object._execute_query(final_query, tuple(params))
 
     if rows:

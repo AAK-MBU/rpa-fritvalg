@@ -36,15 +36,10 @@ def process_item(item_data: dict, item_reference: str):
 
             helper_functions.handle_process_dashboard(status="success", cpr=citizen_cpr, process_step_name=process_step_name)
 
-            logger.info("after handle update")
-
             for workqueue_name in ["tan.fritvalg.faglig_vurdering_udfoert", "jou.solteqtand.fritvalg"]:
                 workqueue = ats_functions.fetch_workqueue(workqueue_name=workqueue_name, dev=True)
 
-                logger.info(f"workqueue: {workqueue}")
-
                 ats_functions.enqueue_items(workqueue=workqueue, items=[item_data])
-                logger.info("after enqueue items")
 
         elif "--faglig_vurdering_udfoert" in sys.argv:
             process_step_name = "Faglig vurdering"
