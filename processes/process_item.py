@@ -34,7 +34,7 @@ def process_item(item_data: dict, item_reference: str):
 
             helper_functions.handle_dashboard_run_creation(process_name="Frit valg", meta=meta_data)
 
-            helper_functions.handle_process_dashboard(status="success", item_reference=item_reference, process_step_name=process_step_name)
+            helper_functions.handle_process_dashboard(status="success", cpr=citizen_cpr, process_step_name=process_step_name)
 
             logger.info("after handle update")
 
@@ -49,7 +49,7 @@ def process_item(item_data: dict, item_reference: str):
         elif "--faglig_vurdering_udfoert" in sys.argv:
             process_step_name = "Faglig vurdering"
 
-            helper_functions.handle_process_dashboard(status="running", item_reference=item_reference, process_step_name=process_step_name)
+            helper_functions.handle_process_dashboard(status="running", cpr=citizen_cpr, process_step_name=process_step_name)
 
             db_conn_string = os.getenv("DBCONNECTIONSTRINGSOLTEQTAND")
             solteq_tand_db_object = SolteqTandDatabase(conn_str=db_conn_string)
@@ -68,7 +68,7 @@ def process_item(item_data: dict, item_reference: str):
             if len(results) > 1:
                 raise BusinessError(message="Borgeren har mere end 1 'Fritvalgsordning godkendt'-hændelse!")
 
-            helper_functions.handle_process_dashboard(status="success", item_reference=item_reference, process_step_name=process_step_name)
+            helper_functions.handle_process_dashboard(status="success", cpr=citizen_cpr, process_step_name=process_step_name)
 
             digital_post_status = solteq_helper.check_digital_post_status(solteq_tand_db_object=solteq_tand_db_object, cpr=citizen_cpr)
 
@@ -101,25 +101,25 @@ def process_item(item_data: dict, item_reference: str):
                 event_name="Fritvalgsordning godkendt"
             )
 
-            helper_functions.handle_process_dashboard(status="success", item_reference=item_reference, process_step_name=process_step_name)
+            helper_functions.handle_process_dashboard(status="success", cpr=citizen_cpr, process_step_name=process_step_name)
 
     except BusinessError as be:
         logger.info(f"BusinessError: {be}")
 
         if str(be) == "Faglig vurdering endnu ikke udført":
-            helper_functions.handle_process_dashboard(status="pending", item_reference=item_reference, process_step_name="Faglig vurdering", failure=be)
+            helper_functions.handle_process_dashboard(status="pending", cpr=citizen_cpr, process_step_name="Faglig vurdering", failure=be)
 
         elif str(be) == "Borger ikke tilmeldt digital post":
-            helper_functions.handle_process_dashboard(status="optional", item_reference=item_reference, process_step_name="Borger orienteret om aftale", failure=be)
+            helper_functions.handle_process_dashboard(status="optional", cpr=citizen_cpr, process_step_name="Borger orienteret om aftale", failure=be)
 
         else:
-            helper_functions.handle_process_dashboard(status="failed", item_reference=item_reference, process_step_name=process_step_name, failure=be)
+            helper_functions.handle_process_dashboard(status="failed", cpr=citizen_cpr, process_step_name=process_step_name, failure=be)
 
         raise
 
     except Exception as e:
         logger.exception(f"Unexpected error while processing item: {e}")
 
-        helper_functions.handle_process_dashboard(status="failed", item_reference=item_reference, process_step_name=process_step_name, failure=e)
+        helper_functions.handle_process_dashboard(status="failed", cpr=citizen_cpr, process_step_name=process_step_name, failure=e)
 
         raise

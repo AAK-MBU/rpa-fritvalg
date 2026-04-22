@@ -40,7 +40,7 @@ def handle_dashboard_run_creation(process_name: str, meta: dict):
         process_run.create_dashboard_run(client=CLIENT, process_name=process_name, meta=meta)
 
 
-def handle_process_dashboard(status: str, item_reference: str, process_step_name: str, failure: Exception | None = None, process_name: str = "Frit valg"):
+def handle_process_dashboard(status: str, cpr: str, process_step_name: str, failure: Exception | None = None, process_name: str = "Frit valg"):
     """
     Method for handling updating the process dashboard
     """
@@ -49,11 +49,9 @@ def handle_process_dashboard(status: str, item_reference: str, process_step_name
         "status": status
     }
 
-    citizen_cpr = item_reference
-
     logger.info("before get_step_run_id_for_process_step_cpr() ...")
 
-    step_run_id = process_step_run.get_step_run_id_for_process_step_cpr(client=CLIENT, process_name=process_name, step_name=process_step_name, cpr=citizen_cpr)
+    step_run_id = process_step_run.get_step_run_id_for_process_step_cpr(client=CLIENT, process_name=process_name, step_name=process_step_name, cpr=cpr)
 
     if failure:
         step_run_update_data = process_step_run.build_step_run_update(status=status, failure=failure)
