@@ -10,7 +10,7 @@ dependencies = [
     "itk_dev_shared_components",
     "mbu-dev-shared-components>=3.0.0",
     "mbu_msoffice_integration>=1.0.1",
-    "mbu-process-dashboard-shared-components>=1.4.0",
+    "mbu-process-dashboard-shared-components>=1.4.1",
     "mbu-rpa-core",
     "mbu-solteqtand-shared-components>=1.5.0",
     "openpyxl",
