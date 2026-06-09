@@ -50,7 +50,7 @@ def process_item(item_data: dict, item_reference: str):
             solteq_tand_db_object = SolteqTandDatabase(conn_str=db_conn_string)
 
             filters = {
-                "e.currentStateText": "Fritvalgsordning godkendt",
+                "e.currentStateText": "Frit valg - Klar til robot",
                 "p.cpr": citizen_cpr,
                 "e.archived": 0,
             }
@@ -61,20 +61,27 @@ def process_item(item_data: dict, item_reference: str):
                 raise BusinessError(message="Faglig vurdering endnu ikke udført")
 
             if len(results) > 1:
-                raise BusinessError(message="Borgeren har mere end 1 'Fritvalgsordning godkendt'-hændelse!")
+                raise BusinessError(message="Borgeren har mere end 1 'Frit valg - Klar til robot'-hændelse!")
 
             helper_functions.handle_process_dashboard(status="success", cpr=citizen_cpr, process_step_name=process_step_name)
-
-            digital_post_status = solteq_helper.check_digital_post_status(solteq_tand_db_object=solteq_tand_db_object, cpr=citizen_cpr)
-
-            if not digital_post_status:
-                raise BusinessError(message="Borger ikke tilmeldt digital post")
 
             startup()
 
             solteq_app = get_app()
 
             solteq_app.open_patient(ssn=citizen_cpr)
+
+            digital_post_status = solteq_helper.check_digital_post_status(solteq_tand_db_object=solteq_tand_db_object, cpr=citizen_cpr)
+
+            if not digital_post_status:
+                solteq_helper.check_and_create_new_event(
+                    solteq_app=solteq_app,
+                    solteq_tand_db_object=solteq_tand_db_object,
+                    event_text="Fritvalg - Borger ikke tilmeldt digital post",
+                    cpr=citizen_cpr
+                )
+
+                raise BusinessError(message="Borger ikke tilmeldt digital post")
 
             approval_document_name = solteq_helper.check_and_create_approval_document(
                 solteq_app=solteq_app,
@@ -89,6 +96,11 @@ def process_item(item_data: dict, item_reference: str):
                 solteq_tand_db_object=solteq_tand_db_object,
                 item_data=item_data,
                 approval_document_name=approval_document_name
+            )
+
+            solteq_app.create_journal_note(
+                note_message="Frit valg - Sendt følgebrev til borger. Se dokumenter",
+                checkmark_in_complete=True,
             )
 
             solteq_helper.check_and_handle_event(

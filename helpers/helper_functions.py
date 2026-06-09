@@ -13,9 +13,6 @@ from mbu_process_dashboard_shared_components import (
 
 load_dotenv()
 
-print(os.getenv("ATS_TOKEN"))
-print(os.getenv("ATS_URL"))
-
 logger = logging.getLogger(__name__)
 
 API_ADMIN_TOKEN = os.getenv("API_ADMIN_TOKEN")
