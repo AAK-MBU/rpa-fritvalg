@@ -107,7 +107,7 @@ def process_item(item_data: dict, item_reference: str):
                 solteq_app=solteq_app,
                 solteq_tand_db_object=solteq_tand_db_object,
                 cpr=citizen_cpr,
-                event_name="Fritvalgsordning godkendt"
+                event_name="Frit valg - Klar til robot"
             )
 
             helper_functions.handle_process_dashboard(status="success", cpr=citizen_cpr, process_step_name=process_step_name)
