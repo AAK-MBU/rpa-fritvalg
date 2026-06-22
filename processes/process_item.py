@@ -83,10 +83,13 @@ def process_item(item_data: dict, item_reference: str):
 
                 raise BusinessError(message="Borger ikke tilmeldt digital post")
 
+            is_16_or_older = helper_functions.is_16_or_older(cpr=citizen_cpr)
+
             approval_document_name = solteq_helper.check_and_create_approval_document(
                 solteq_app=solteq_app,
                 solteq_tand_db_object=solteq_tand_db_object,
                 item_data=item_data,
+                is_16_or_older,
             )
 
             process_step_name = "Borger orienteret om aftale"

@@ -47,19 +47,23 @@ def check_digital_post_status(solteq_tand_db_object: SolteqTandDatabase, cpr: st
     return True
 
 
-def check_and_create_approval_document(solteq_app: SolteqTandApp, solteq_tand_db_object: SolteqTandDatabase, item_data: dict):
+def check_and_create_approval_document(solteq_app: SolteqTandApp, solteq_tand_db_object: SolteqTandDatabase, item_data: dict, is_16_or_older: bool):
     """
-    Create a welcome document based on the patient's age.
+    Create an approval document based on the patient's age.
     If the document already exists, it will not be created again.
     """
 
-    template_name = "Fritvalg - aftale godkendt"
+    if is_16_or_older:
+        template_name = "Følgebrev - Frit valg fra 16 år"
 
-    approval_document_name = "Fritvalg - aftale godkendt document"
+    else:
+        template_name = "Følgebrev - Frit valg 0-15 år"
+
+    approval_document_name = "Godkendelse af anmodning om frit valg"
 
     one_month_ago = datetime.datetime.now() - relativedelta(months=1)
 
-    logger.info("Checking for existing welcome documents.")
+    logger.info("Checking for existing approval documents.")
 
     list_of_documents = solteq_tand_db_object.get_list_of_documents(
         filters={
@@ -71,7 +75,7 @@ def check_and_create_approval_document(solteq_app: SolteqTandApp, solteq_tand_db
         }
     )
 
-    logger.info(f"Found {len(list_of_documents)} existing welcome documents.")
+    logger.info(f"Found {len(list_of_documents)} existing approval documents.")
 
     if not list_of_documents:
         folder_path = f"C:\\tmp\\tmt\\{item_data['cpr']}"
@@ -80,7 +84,7 @@ def check_and_create_approval_document(solteq_app: SolteqTandApp, solteq_tand_db
 
         print(f"\nprinting the folder_path: {folder_path}\n")
 
-        logger.info("No existing welcome documents found, creating a new one.")
+        logger.info("No existing approval documents found, creating a new one.")
         document_template_metadata = {
             "templateName": template_name,
             "destinationPath": folder_path,
@@ -91,25 +95,25 @@ def check_and_create_approval_document(solteq_app: SolteqTandApp, solteq_tand_db
             metadata=document_template_metadata
         )
 
-        logger.info("Welcome document was created successfully.")
+        logger.info("Approval document was created successfully.")
 
     else:
-        logger.info("Welcome document already exists, skipping creation.")
+        logger.info("Approval document already exists, skipping creation.")
 
     return approval_document_name
 
 
 def check_and_send_approval_document(solteq_app: SolteqTandApp, solteq_tand_db_object: SolteqTandDatabase, item_data: dict, approval_document_name: str):
     """
-    Check if the welcome document is already sent to DigitalPost; if not, send it.
-    This function checks for the existence of welcome document within the last month
+    Check if the approval document is already sent to DigitalPost; if not, send it.
+    This function checks for the existence of approval document within the last month
     and sends it to DigitalPost if it has not been sent yet.
     """
 
     one_month_ago = datetime.datetime.now() - relativedelta(months=1)
 
     # Check if the discharge document is already sent to DigitalPost; if not, send it.
-    logger.info("Checking if the welcome document is already sent to DigitalPost.")
+    logger.info("Checking if the approval document is already sent to DigitalPost.")
 
     list_of_documents = solteq_tand_db_object.get_list_of_documents(
         filters={
@@ -129,22 +133,22 @@ def check_and_send_approval_document(solteq_app: SolteqTandApp, solteq_tand_db_o
 
         discharge_document_metadata = {
             "documentTitle": approval_document_name + ".pdf",
-            "digitalPostSubject": "Velkommen til Tandplejen Aarhus",
+            "digitalPostSubject": "Godkendelse af anmodning om frit valg",
         }
 
         solteq_app.send_discharge_document_digitalpost(
             metadata=discharge_document_metadata
         )
 
-        logger.info("Welcome document sent to DigitalPost successfully.")
+        logger.info("Approval document sent to DigitalPost successfully.")
 
     else:
-        logger.info("Welcome document already sent to DigitalPost or not found, skipping sending.")
+        logger.info("Approval document already sent to DigitalPost or not found, skipping sending.")
 
 
 def check_and_handle_event(solteq_app: SolteqTandApp, solteq_tand_db_object: SolteqTandDatabase, cpr: str, event_name):
     """
-    Afvikler den nyligt oprettede tilflytter hændelse
+    Afvikler en hændelse
     """
 
     logger.info("Checking if event is already processed.")
