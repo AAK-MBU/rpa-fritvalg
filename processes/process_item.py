@@ -89,7 +89,7 @@ def process_item(item_data: dict, item_reference: str):
                 solteq_app=solteq_app,
                 solteq_tand_db_object=solteq_tand_db_object,
                 item_data=item_data,
-                is_16_or_older,
+                is_16_or_older=is_16_or_older,
             )
 
             process_step_name = "Borger orienteret om aftale"
