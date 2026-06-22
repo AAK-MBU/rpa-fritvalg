@@ -71,6 +71,7 @@ async def process_workqueue(workqueue: Workqueue):
                             log=logger.info,
                             context=context,
                         )
+                        close()
 
                     except Exception as e:
                         pe = ProcessError(str(e))

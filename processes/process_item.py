@@ -102,7 +102,7 @@ def process_item(item_data: dict, item_reference: str):
             )
 
             solteq_app.create_journal_note(
-                note_message="Frit valg - Sendt følgebrev til borger. Se dokumenter",
+                note_message="Administrativt notat 'Frit valg - Sendt følgebrev til borger. Se dokumenter'",
                 checkmark_in_complete=True,
             )
 
