@@ -4,6 +4,7 @@ import logging
 import subprocess as sp
 from subprocess import CalledProcessError
 
+import psutil
 from mbu_dev_shared_components.database.connection import RPAConnection
 from mbu_solteqtand_shared_components.application import SolteqTandApp
 
@@ -11,6 +12,7 @@ from helpers import config
 
 APP = None
 logger = logging.getLogger(__name__)
+
 
 
 def get_app():
@@ -68,8 +70,11 @@ def close():
     """Function for closing applications softly or hardly if necessary"""
     try:
         soft_close()
-
     except Exception:
+        pass
+
+    if any(p.info["name"] == "TMTand.exe" for p in psutil.process_iter(["name"])):
+        logger.warning("App still running after soft close — falling back to hard close")
         hard_close()
 
 

@@ -17,7 +17,7 @@ load_dotenv()
 logger = logging.getLogger(__name__)
 
 API_ADMIN_TOKEN = os.getenv("API_ADMIN_TOKEN")
-CLIENT = ProcessDashboardClient(api_admin_token=API_ADMIN_TOKEN)
+CLIENT = ProcessDashboardClient(api_admin_token=API_ADMIN_TOKEN, base_url="https://dev-mbu-dashboard-api.adm.aarhuskommune.dk/api/v1")
 
 
 def handle_dashboard_run_creation(process_name: str, meta: dict):
