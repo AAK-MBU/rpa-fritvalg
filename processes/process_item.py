@@ -22,15 +22,17 @@ def process_item(item_data: dict, item_reference: str):
     try:
         citizen_cpr = item_data.get("cpr")
 
-        meta_data = {
-            "cpr": citizen_cpr,
-            "name": item_data.get("name")
-        }
 
         process_step_name = ""
 
         if "--fritvalg_registreret" in sys.argv:
             process_step_name = "Formular indsendt"
+
+            meta_data = {
+                "cpr": citizen_cpr,
+                "name": item_data.get("name"),
+                "journal_samtykke": item_data.get("journal_samtykke")
+            }
 
             helper_functions.handle_dashboard_run_creation(process_name="Frit valg", meta=meta_data)
 
