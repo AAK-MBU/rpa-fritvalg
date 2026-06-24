@@ -115,6 +115,8 @@ def process_item(item_data: dict, item_reference: str):
                 event_name="Frit valg - Klar til robot"
             )
 
+            solteq_app.close_patient_window()
+
             helper_functions.handle_process_dashboard(status="success", cpr=citizen_cpr, process_step_name=process_step_name)
 
     except BusinessError as be:
