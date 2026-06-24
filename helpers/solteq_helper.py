@@ -169,7 +169,7 @@ def check_and_handle_event(solteq_app: SolteqTandApp, solteq_tand_db_object: Sol
 
     logger.info(f"Found {len(events)} existing processed frit valg godkendt events.")
 
-    if not events:
+    if events:
         target_values = {event_name, "Henvisning", "Nej"}
 
         solteq_app.process_target_event(target_values=target_values)
