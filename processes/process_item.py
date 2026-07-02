@@ -67,6 +67,10 @@ def process_item(item_data: dict, item_reference: str):
 
             helper_functions.handle_process_dashboard(status="success", cpr=citizen_cpr, process_step_name=process_step_name)
 
+            process_step_name = "Borger orienteret om aftale"
+
+            helper_functions.handle_process_dashboard(status="running", cpr=citizen_cpr, process_step_name=process_step_name)
+
             startup()
 
             solteq_app = get_app()
@@ -94,8 +98,6 @@ def process_item(item_data: dict, item_reference: str):
                 is_16_or_older=is_16_or_older,
             )
 
-            process_step_name = "Borger orienteret om aftale"
-
             solteq_helper.check_and_send_approval_document(
                 solteq_app=solteq_app,
                 solteq_tand_db_object=solteq_tand_db_object,
@@ -103,8 +105,11 @@ def process_item(item_data: dict, item_reference: str):
                 approval_document_name=approval_document_name
             )
 
-            solteq_app.create_journal_note(
-                note_message="Administrativt notat 'Frit valg - Sendt følgebrev til borger. Se dokumenter'",
+            solteq_helper.check_and_create_journal_note(
+                solteq_app=solteq_app,
+                solteq_tand_db_object=solteq_tand_db_object,
+                cpr=citizen_cpr,
+                journal_note_message="'Frit valg - Sendt følgebrev til borger. Se dokumenter'",
                 checkmark_in_complete=True,
             )
 

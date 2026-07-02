@@ -146,6 +146,46 @@ def check_and_send_approval_document(solteq_app: SolteqTandApp, solteq_tand_db_o
         logger.info("Approval document already sent to DigitalPost or not found, skipping sending.")
 
 
+def check_and_create_journal_note(
+    solteq_app: SolteqTandApp,
+    solteq_tand_db_object: SolteqTandDatabase,
+    cpr: str,
+    journal_note_message: str,
+    checkmark_in_complete: bool,
+    note_type: str = "Administrativt notat",
+):
+    """
+    Check if a journal note with the given message already exists in Solteq Tand,
+    and create it if not.
+    """
+
+    logger.info("Checking if journal note already exists.")
+
+    journal_note_message_sql_lookup = journal_note_message.replace(f"{note_type} ", "").replace("'", "")
+
+    filters = {
+        "p.cpr": cpr,
+        "dn.Beskrivelse": journal_note_message_sql_lookup,
+    }
+
+    journal_note_exists = solteq_tand_db_object.get_list_of_journal_notes(filters=filters)
+
+    if not journal_note_exists:
+        logger.info("Journal note does not exist, creating it.")
+
+        note_message = f"{note_type} {journal_note_message}"
+
+        solteq_app.create_journal_note(
+            note_message=note_message,
+            checkmark_in_complete=checkmark_in_complete,
+        )
+
+        logger.info("Journal note created successfully.")
+
+    else:
+        logger.info("Journal note already exists, skipping creation.")
+
+
 def check_and_handle_event(solteq_app: SolteqTandApp, solteq_tand_db_object: SolteqTandDatabase, cpr: str, event_name):
     """
     Afvikler en hændelse
