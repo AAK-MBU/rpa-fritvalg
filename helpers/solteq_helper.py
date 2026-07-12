@@ -237,7 +237,7 @@ def check_and_create_new_event(solteq_app: SolteqTandApp, solteq_tand_db_object:
     events = find_events(db_handler=solteq_tand_db_object, filters=filters)
 
     if not events:
-        solteq_app.create_new_event(clinic_name="Tandplejen Aarhus", event_text=event_text)
+        solteq_app.create_new_event(clinic_name="Tandplejen Aarhus - Kontaktcenter", event_text=event_text)
 
         logger.info("Event was created successfully.")
 
