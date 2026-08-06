@@ -21,16 +21,17 @@ def process_item(item_data: dict, item_reference: str):
 
     solteq_app = None
 
+    is_fritvalg_registreret = "--fritvalg_registreret" in sys.argv
+    is_faglig_vurdering_udfoert = "--faglig_vurdering_udfoert" in sys.argv
+
     try:
         citizen_cpr = item_data.get("cpr")
 
         process_step_name = "Formular indsendt"
 
-        startup()
-
-        solteq_app = open_patient(cpr=citizen_cpr)
-
-        if "--fritvalg_registreret" in sys.argv:
+        # Ensure the dashboard run exists before touching the app, so a later
+        # open_patient failure is recorded against an existing run.
+        if is_fritvalg_registreret:
             meta_data = {
                 "cpr": citizen_cpr,
                 "name": item_data.get("name"),
@@ -39,6 +40,12 @@ def process_item(item_data: dict, item_reference: str):
 
             helper_functions.handle_dashboard_run_creation(process_name="Frit valg", meta=meta_data)
 
+        startup()
+
+        solteq_app = open_patient(cpr=citizen_cpr)
+
+        # Patient confirmed to exist — now enqueue the follow-up work.
+        if is_fritvalg_registreret:
             helper_functions.handle_process_dashboard(status="success", cpr=citizen_cpr, process_step_name=process_step_name)
 
             for workqueue_name in ["tan.fritvalg.faglig_vurdering_udfoert", "jou.solteqtand.fritvalg"]:
@@ -46,7 +53,7 @@ def process_item(item_data: dict, item_reference: str):
 
                 ats_functions.enqueue_items(workqueue=workqueue, items=[item_data])
 
-        elif "--faglig_vurdering_udfoert" in sys.argv:
+        elif is_faglig_vurdering_udfoert:
             process_step_name = "Faglig vurdering"
 
             helper_functions.handle_process_dashboard(status="running", cpr=citizen_cpr, process_step_name=process_step_name)
