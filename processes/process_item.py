@@ -8,7 +8,7 @@ from mbu_solteqtand_shared_components.database.db_handler import SolteqTandDatab
 from mbu_rpa_core.exceptions import BusinessError
 
 from helpers import ats_functions, helper_functions, solteq_helper
-from processes.application_handler import get_app, startup, open_patient
+from processes.application_handler import startup, open_patient
 
 logger = logging.getLogger(__name__)
 
@@ -22,15 +22,13 @@ def process_item(item_data: dict, item_reference: str):
     try:
         citizen_cpr = item_data.get("cpr")
 
+        process_step_name = "Formular indsendt"
+
         startup()
 
         solteq_app = open_patient(cpr=citizen_cpr)
 
-        process_step_name = ""
-
         if "--fritvalg_registreret" in sys.argv:
-            process_step_name = "Formular indsendt"
-
             meta_data = {
                 "cpr": citizen_cpr,
                 "name": item_data.get("name"),
