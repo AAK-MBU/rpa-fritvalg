@@ -19,6 +19,8 @@ def process_item(item_data: dict, item_reference: str):
     assert item_data, "Item data is required"
     assert item_reference, "Item reference is required"
 
+    solteq_app = None
+
     try:
         citizen_cpr = item_data.get("cpr")
 
@@ -118,7 +120,8 @@ def process_item(item_data: dict, item_reference: str):
 
             helper_functions.handle_process_dashboard(status="success", cpr=citizen_cpr, process_step_name=process_step_name)
 
-        solteq_app.close_patient_window()
+        if solteq_app is not None:
+            solteq_app.close_patient_window()
 
     except BusinessError as be:
         logger.info(f"BusinessError: {be}")
@@ -132,7 +135,8 @@ def process_item(item_data: dict, item_reference: str):
         else:
             helper_functions.handle_process_dashboard(status="failed", cpr=citizen_cpr, process_step_name=process_step_name, failure=be)
 
-        solteq_app.close_patient_window()
+        if solteq_app is not None:
+            solteq_app.close_patient_window()
 
         raise
 
@@ -141,6 +145,7 @@ def process_item(item_data: dict, item_reference: str):
 
         helper_functions.handle_process_dashboard(status="failed", cpr=citizen_cpr, process_step_name=process_step_name, failure=e)
 
-        solteq_app.close_patient_window()
+        if solteq_app is not None:
+            solteq_app.close_patient_window()
 
         raise
