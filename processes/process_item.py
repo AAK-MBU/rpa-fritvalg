@@ -8,7 +8,7 @@ from mbu_solteqtand_shared_components.database.db_handler import SolteqTandDatab
 from mbu_rpa_core.exceptions import BusinessError
 
 from helpers import ats_functions, helper_functions, solteq_helper
-from processes.application_handler import get_app, startup
+from processes.application_handler import get_app, startup, open_patient
 
 logger = logging.getLogger(__name__)
 
@@ -22,6 +22,9 @@ def process_item(item_data: dict, item_reference: str):
     try:
         citizen_cpr = item_data.get("cpr")
 
+        startup()
+
+        solteq_app = open_patient(cpr=citizen_cpr)
 
         process_step_name = ""
 
@@ -71,12 +74,6 @@ def process_item(item_data: dict, item_reference: str):
 
             helper_functions.handle_process_dashboard(status="running", cpr=citizen_cpr, process_step_name=process_step_name)
 
-            startup()
-
-            solteq_app = get_app()
-
-            solteq_app.open_patient(ssn=citizen_cpr)
-
             digital_post_status = solteq_helper.check_digital_post_status(solteq_tand_db_object=solteq_tand_db_object, cpr=citizen_cpr)
 
             if not digital_post_status:
@@ -120,9 +117,10 @@ def process_item(item_data: dict, item_reference: str):
                 event_name="Frit valg - Klar til robot"
             )
 
-            solteq_app.close_patient_window()
 
             helper_functions.handle_process_dashboard(status="success", cpr=citizen_cpr, process_step_name=process_step_name)
+
+        solteq_app.close_patient_window()
 
     except BusinessError as be:
         logger.info(f"BusinessError: {be}")
@@ -136,11 +134,15 @@ def process_item(item_data: dict, item_reference: str):
         else:
             helper_functions.handle_process_dashboard(status="failed", cpr=citizen_cpr, process_step_name=process_step_name, failure=be)
 
+        solteq_app.close_patient_window()
+
         raise
 
     except Exception as e:
         logger.exception(f"Unexpected error while processing item: {e}")
 
         helper_functions.handle_process_dashboard(status="failed", cpr=citizen_cpr, process_step_name=process_step_name, failure=e)
+
+        solteq_app.close_patient_window()
 
         raise

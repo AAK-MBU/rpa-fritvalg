@@ -6,7 +6,12 @@ from subprocess import CalledProcessError
 
 import psutil
 from mbu_dev_shared_components.database.connection import RPAConnection
+from mbu_rpa_core.exceptions import BusinessError
 from mbu_solteqtand_shared_components.application import SolteqTandApp
+from mbu_solteqtand_shared_components.application.exceptions import (
+    NotMatchingError,
+    PatientNotFoundError,
+)
 
 from helpers import config
 
@@ -19,6 +24,37 @@ def get_app():
     # ruff: noqa: PLW0602
     global APP
     return APP
+
+
+def open_patient(cpr: str) -> SolteqTandApp:
+    """Open a patient in Solteq Tand, guarding against a missing patient.
+
+    Fetches the running application instance and opens the patient with the
+    given CPR. Conditions that stem from the input data rather than an
+    automation failure are translated into a ``BusinessError`` so they are
+    handled as business failures upstream:
+
+    - ``PatientNotFoundError``: no patient exists with the given CPR.
+    - ``NotMatchingError``: a patient was opened, but its CPR did not match
+      the requested one.
+
+    Returns the application instance so callers can keep using it.
+    """
+    solteq_app = get_app()
+    if solteq_app is None:
+        raise ValueError("Could not get application instance.")
+
+    logger.info("Opening patient in Solteq Tand application...")
+    try:
+        solteq_app.open_patient(cpr)
+    except PatientNotFoundError as exc:
+        raise BusinessError(f"Patient med CPR {cpr} findes ikke i Solteq Tand") from exc
+    except NotMatchingError as exc:
+        raise BusinessError(
+            f"Opened patient's CPR did not match the requested CPR: {cpr}"
+        ) from exc
+
+    return solteq_app
 
 
 def startup():
