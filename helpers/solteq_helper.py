@@ -6,6 +6,7 @@ import os
 import datetime
 
 from dateutil.relativedelta import relativedelta
+from mbu_rpa_core.exceptions import BusinessError
 from mbu_solteqtand_shared_components.application import SolteqTandApp
 from mbu_solteqtand_shared_components.database.db_handler import SolteqTandDatabase
 
@@ -91,9 +92,16 @@ def check_and_create_approval_document(solteq_app: SolteqTandApp, solteq_tand_db
             "dischargeDocumentFilename": approval_document_name,
         }
 
-        solteq_app.create_document_from_template(
-            metadata=document_template_metadata
-        )
+        try:
+            solteq_app.create_document_from_template(
+                metadata=document_template_metadata
+            )
+        except ValueError as exc:
+            if str(exc) == "No appointments found in the list.":
+                raise BusinessError(
+                    "Der kan ikke oprettes følgebrev, da patienten ikke har nogle aftaler i Solteq Tand"
+                ) from exc
+            raise
 
         logger.info("Approval document was created successfully.")
 
