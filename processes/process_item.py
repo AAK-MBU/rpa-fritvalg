@@ -8,7 +8,7 @@ from mbu_solteqtand_shared_components.database.db_handler import SolteqTandDatab
 from mbu_rpa_core.exceptions import BusinessError
 
 from helpers import ats_functions, helper_functions, solteq_helper
-from processes.application_handler import startup, open_patient
+from processes.application_handler import open_patient
 
 logger = logging.getLogger(__name__)
 
@@ -39,8 +39,6 @@ def process_item(item_data: dict, item_reference: str):
             }
 
             helper_functions.handle_dashboard_run_creation(process_name="Frit valg", meta=meta_data)
-
-        startup()
 
         solteq_app = open_patient(cpr=citizen_cpr)
 

@@ -57,8 +57,30 @@ def open_patient(cpr: str) -> SolteqTandApp:
     return solteq_app
 
 
+def is_app_running() -> bool:
+    """Return True if a tracked Solteq Tand instance exists and its process is alive.
+
+    Guards against two stale states: no instance tracked yet, and a tracked
+    instance whose process has since crashed/been closed (``APP`` still set but
+    ``TMTand.exe`` gone) — both of which should trigger a fresh startup.
+    """
+    if get_app() is None:
+        return False
+
+    return any(p.info["name"] == "TMTand.exe" for p in psutil.process_iter(["name"]))
+
+
 def startup():
-    """Function for starting applications"""
+    """Start Solteq Tand, reusing an existing instance if one is already running.
+
+    Idempotent on purpose: processing several workitems in a single run calls
+    ``startup()`` per item, and without this guard each call would spawn another
+    application instance.
+    """
+    if is_app_running():
+        logger.info("Solteq Tand is already running — reusing the existing instance.")
+        return
+
     logger.info("Starting applications...")
 
     with RPAConnection(db_env="PROD", commit=False) as rpa_conn:
