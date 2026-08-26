@@ -13,11 +13,12 @@ from processes.application_handler import open_patient
 logger = logging.getLogger(__name__)
 
 
-def process_item(item_data: dict, item_reference: str):
+def process_item(item_data: dict, item_reference: str, item_id: str):
     """Function to handle item processing"""
 
     assert item_data, "Item data is required"
     assert item_reference, "Item reference is required"
+    assert item_id, "Item id is required"
 
     solteq_app = None
 
@@ -138,7 +139,7 @@ def process_item(item_data: dict, item_reference: str):
             helper_functions.handle_process_dashboard(status="optional", cpr=citizen_cpr, process_step_name="Borger orienteret om aftale", failure=be)
 
         else:
-            helper_functions.handle_process_dashboard(status="failed", cpr=citizen_cpr, process_step_name=process_step_name, failure=be)
+            helper_functions.handle_process_dashboard(status="failed", cpr=citizen_cpr, process_step_name=process_step_name, failure=be, rerun_config={"workitem_id": item_id})
 
         if solteq_app is not None:
             solteq_app.close_patient_window()
@@ -148,7 +149,7 @@ def process_item(item_data: dict, item_reference: str):
     except Exception as e:
         logger.exception(f"Unexpected error while processing item: {e}")
 
-        helper_functions.handle_process_dashboard(status="failed", cpr=citizen_cpr, process_step_name=process_step_name, failure=e)
+        helper_functions.handle_process_dashboard(status="failed", cpr=citizen_cpr, process_step_name=process_step_name, failure=e, rerun_config={"workitem_id": item_id})
 
         if solteq_app is not None:
             solteq_app.close_patient_window()
