@@ -62,14 +62,24 @@ def check_and_create_approval_document(solteq_app: SolteqTandApp, solteq_tand_db
 
     approval_document_name = "Godkendelse af anmodning om frit valg"
 
+    form_id = item_data.get("form_id")
+
+    # Without a form_id the description filter below can never match, and every run
+    # would create a new følgebrev instead of recognising the existing one.
+    if not form_id:
+        raise BusinessError("Formularen mangler et form_id, følgebrevet kan ikke oprettes")
+
     one_month_ago = datetime.datetime.now() - relativedelta(months=1)
 
     logger.info("Checking for existing approval documents.")
 
+    # The form_id is written into the document description on creation, so the
+    # duplicate check matches on it as well and no longer relies on the date alone.
     list_of_documents = solteq_tand_db_object.get_list_of_documents(
         filters={
             "p.cpr": item_data["cpr"],
             "ds.OriginalFilename": f"%{approval_document_name}%",
+            "ds.DocumentDescription": f"%{form_id}%",
             "ds.rn": "1",
             "ds.DocumentStoreStatusId": "1",
             "ds.DocumentCreatedDate": (">=", one_month_ago),
@@ -90,6 +100,7 @@ def check_and_create_approval_document(solteq_app: SolteqTandApp, solteq_tand_db
             "templateName": template_name,
             "destinationPath": folder_path,
             "dischargeDocumentFilename": approval_document_name,
+            "documentDescription": form_id,
         }
 
         try:
@@ -118,15 +129,20 @@ def check_and_send_approval_document(solteq_app: SolteqTandApp, solteq_tand_db_o
     and sends it to DigitalPost if it has not been sent yet.
     """
 
+    form_id = item_data.get("form_id")
+
     one_month_ago = datetime.datetime.now() - relativedelta(months=1)
 
     # Check if the discharge document is already sent to DigitalPost; if not, send it.
     logger.info("Checking if the approval document is already sent to DigitalPost.")
 
+    # Same filter as in check_and_create_approval_document, so we look at the document
+    # created for this form submission and not an older one for the same citizen.
     list_of_documents = solteq_tand_db_object.get_list_of_documents(
         filters={
             "p.cpr": item_data["cpr"],
             "ds.OriginalFilename": f"%{approval_document_name}%",
+            "ds.DocumentDescription": f"%{form_id}%",
             "ds.rn": "1",
             "ds.DocumentStoreStatusId": "1",
             "ds.DocumentCreatedDate": (">=", one_month_ago),
