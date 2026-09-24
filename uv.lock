@@ -480,7 +480,7 @@ wheels = [
 
 [[package]]
 name = "mbu-solteqtand-shared-components"
-version = "3.1.8"
+version = "3.2.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "cryptography" },
@@ -489,9 +489,9 @@ dependencies = [
     { name = "python-dateutil" },
     { name = "uiautomation" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/2b/af/8948808037af9b1a762d02472e7c96464ee3bd0e83d41ceb7b5c36d4c9df/mbu_solteqtand_shared_components-3.1.8.tar.gz", hash = "sha256:713015406754c62137d4cefac0d33dd2533d57e8995912406467812c426b977a", size = 25473, upload-time = "2026-09-22T13:01:55.24Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/fd/ef/4fe05b0404d04319589ce43fbe80ad19402985cdd62811a626dd756809f8/mbu_solteqtand_shared_components-3.2.0.tar.gz", hash = "sha256:4445a6b4463285b006ca26d4b200396239c677889be11c833f095a0f89f48eee", size = 27417, upload-time = "2026-09-24T06:32:42.291Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/a9/25/491fc97849ac00a09e7228bbffe7654b547889c7f088c5737017495e93ed/mbu_solteqtand_shared_components-3.1.8-py3-none-any.whl", hash = "sha256:c3718fd18026148987d486dcde847557b5e9e80369fec1ed0d496f224e383960", size = 33224, upload-time = "2026-09-22T13:01:54.019Z" },
+    { url = "https://files.pythonhosted.org/packages/96/c6/c216144309df85461517b8d6cf801e782bb4304cb1674ff4aad97f410b02/mbu_solteqtand_shared_components-3.2.0-py3-none-any.whl", hash = "sha256:b2a503f3ee58fac4b6e438fe4b9232b054f3c6e7ba599dfc37ebb2b7ee3393e5", size = 35174, upload-time = "2026-09-24T06:32:41.011Z" },
 ]
 
 [[package]]
@@ -953,7 +953,7 @@ requires-dist = [
     { name = "mbu-msoffice-integration", specifier = ">=1.0.1" },
     { name = "mbu-process-dashboard-shared-components", specifier = ">=1.5.0" },
     { name = "mbu-rpa-core" },
-    { name = "mbu-solteqtand-shared-components", specifier = ">=3.1.8" },
+    { name = "mbu-solteqtand-shared-components", specifier = ">=3.2.0" },
     { name = "openpyxl" },
     { name = "pandas" },
     { name = "pillow" },
